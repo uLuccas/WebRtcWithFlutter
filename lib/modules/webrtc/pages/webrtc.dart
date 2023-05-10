@@ -29,14 +29,14 @@ class _WebRtcPageState extends State<WebRtcPage> {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
 
-    await connectSocket();
-    await joinRoom();
+    // await connectSocket();
+    // await joinRoom();
   }
 
   Future connectSocket() async {
     socket = IO.io('http://localhost:3000',
         IO.OptionBuilder().setTransports(['websocket']).build());
-    socket.onConnect((data) => print('연결 완료 !'));
+    socket.onConnect((data) => print('deu bom ! $data'));
 
     socket.on('joined', (data) {
       _sendOffer();
@@ -136,22 +136,36 @@ class _WebRtcPageState extends State<WebRtcPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: Column(
         children: [
-          Expanded(
-              child: Column(
+          ElevatedButton(
+              onPressed: () async {
+                await connectSocket();
+
+                await joinRoom();
+              },
+              child: const Text("Join Room")),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
             children: [
-              Text("Local"),
-              RTCVideoView(_localRenderer),
+              Expanded(
+                  child: Column(
+                children: [
+                  Text("Local"),
+                  RTCVideoView(_localRenderer),
+                ],
+              )),
+              Expanded(
+                  child: Column(
+                children: [
+                  Text("Remote"),
+                  RTCVideoView(_remoteRenderer),
+                ],
+              )),
             ],
-          )),
-          Expanded(
-              child: Column(
-            children: [
-              Text("Remote"),
-              RTCVideoView(_remoteRenderer),
-            ],
-          )),
+          ),
         ],
       ),
     );
